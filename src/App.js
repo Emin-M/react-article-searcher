@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import Header from "./components/Header";
+import axios from "axios";
+import News from "./components/News";
+import Footer from "./components/Footer";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const API_KEY = "azG7YOZ2fLxZXNA6nwoV16KEiSqFjSk6";
+
+  const [term, setTerm] = useState("election");
+  const [data, setData] = useState([]);
+  const [isloading, setIsloading] = useState(true);
+
+  const fetchingNews = async () => {
+    setIsloading(true);
+    const res = await axios.get(
+      `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${term}&api-key=${API_KEY}
+      `
+    );
+    setData(res.data.response.docs);
+    setIsloading(false);
+  };
+
+  useEffect(() => {
+    fetchingNews();
+  }, [term]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header term={term} setTerm={setTerm} />
+      {isloading ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <News data={data} />
+      )}
+      <Footer />
     </div>
   );
-}
+};
 
 export default App;
